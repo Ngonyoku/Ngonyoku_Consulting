@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "136019463494",
+    "firebase_url": "https://ngonyoku-consulting.firebaseio.com",
+    "project_id": "ngonyoku-consulting",
+    "storage_bucket": "ngonyoku-consulting.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136019463494:android:f8e2dce5d0872cd3c82947",
+        "android_client_info": {
+          "package_name": "com.ngonyoku.ngonyokuconsulting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "136019463494-l1jfeiblu1kall644gm167ql8aqkgt4p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaGFpyDux7pBUC1q2upSyo1ZOWjnfdyio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "136019463494-l1jfeiblu1kall644gm167ql8aqkgt4p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
