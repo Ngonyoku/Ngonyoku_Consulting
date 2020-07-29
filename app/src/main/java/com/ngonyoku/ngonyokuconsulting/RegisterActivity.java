@@ -16,11 +16,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
-    public static final String DOMAIN_NAME = "ngonyoku.com";
+    public static final String DOMAIN_NAME = "gmail.com";
 
     private Button mRegister;
     private EditText mEmail, mPassword, mConfirmPassword;
@@ -49,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
                     mEmail.requestFocus();
 
                     /*Check id domain is valid*/
-                } else if (!isValidDomain(mEmail.getText().toString().trim())) {
+                } else if (isValidDomain(mEmail.getText().toString().trim())) {
 
                     /*Check if Passwords Match*/
                     if (mPassword.getText().toString().trim()
@@ -84,15 +85,34 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.d(TAG, "onComplete: AuthState: "
                                     + FirebaseAuth.getInstance().getCurrentUser()
                             );
-                            feedBack("Registration Successful!!");
-                            erase();
+                            feedBack("Registration Successful!!", false);
+                            sendVerificationEmail();
                             FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(RegisterActivity.this, LogInActivity.class));
+                            erase();
                         } else {
                             feedBack("OOPS!!, Registration Failed. "
                                     + task.getException().getMessage()
                             );
                         }
                         dismissDialog();
+                    }
+                })
+        ;
+    }
+
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            feedBack("Verification Email Sent", false);
+                        } else {
+                            feedBack(task.getException().getMessage());
+                        }
                     }
                 })
         ;
@@ -111,9 +131,6 @@ public class RegisterActivity extends AppCompatActivity {
         return domain.equals(DOMAIN_NAME);
     }
 
-    public void goToLogIn(View view) {
-        startActivity(new Intent(this, LogInActivity.class));
-    }
 
     private void erase() {
         mEmail.setText(null);
@@ -126,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    private void feedback(String message, boolean length_long) {
+    private void feedBack(String message, boolean length_long) {
         if (!length_long) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         } else feedBack(message);
