@@ -136,6 +136,7 @@
             android:layout_marginBottom="32dp"
             android:fontFamily="serif"
             android:padding="8dp"
+            android:onClick="resendVerificationEmail"
             android:text="Resend verification link"
             android:textSize="18sp"
             android:textStyle="italic"

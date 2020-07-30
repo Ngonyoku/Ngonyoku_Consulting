@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,7 +16,9 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -59,7 +62,6 @@ public class LogInActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     dismissDialog();
                                     feedBack("Sign In Successful");
-                                    erase();
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -115,6 +117,9 @@ public class LogInActivity extends AppCompatActivity {
                     if (user.isEmailVerified()) {
                         Log.d(TAG, "onAuthStateChanged: Sign In:" + user.getUid());
                         feedBack("Authenticated with " + user.getEmail(), false);
+
+                        startActivity(new Intent(LogInActivity.this, SignedInActivity.class));
+                        finish();
                     } else {
                         feedBack("Check your Email Inbox for Verification Link");
                         FirebaseAuth.getInstance().signOut();
@@ -138,5 +143,58 @@ public class LogInActivity extends AppCompatActivity {
         if (mAuthStateListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthStateListener); /*Detach AuthStateListener*/
         }
+    }
+
+    private void resendVerificationEmail(String email, String password) {
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        FirebaseAuth
+                .getInstance()
+                .signInWithCredential(credential)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete: ReAuthenticate Success");
+                            sendVerificationEmail();
+                            FirebaseAuth.getInstance().signOut();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        feedBack("Incorrect Credentials! Please Try agin");
+                        erase();
+                    }
+                })
+        ;
+    }
+
+    public void resendVerificationEmail(View view) {
+        String email = mEmail.getText().toString().trim();
+        String password = mPassword.getText().toString().trim();
+
+        if (!email.isEmpty() || !password.isEmpty()) {
+            resendVerificationEmail(email, password);
+        } else {
+            feedBack("Email and Password is Required!");
+        }
+    }
+
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            feedBack("Verification Email Sent", false);
+                        } else {
+                            feedBack(task.getException().getMessage());
+                        }
+                    }
+                })
+        ;
     }
 }
